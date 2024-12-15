@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Event Booking - Search Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .search-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        .search-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .search-icon i {
+            font-size: 30px;
+            color: white;
+        }
+        .event-card {
+            height: 100%;
+            background: white;
+        }
+        .event-card .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 1.5rem 1.5rem 1rem;
+        }
+        .event-card .card-body {
+            padding: 1.5rem;
+        }
+        .rating-badge {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        .btn-outline-primary {
+            color: #667eea;
+            border-color: #667eea;
+        }
+        .btn-outline-primary:hover {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border-color: transparent;
+        }
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .booking-form {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-calendar-alt me-2"></i>Event Booking
+            </a>
+            <div class="d-flex align-items-center">
+                <div th:if="${user != null}">
+                    <span class="text-white me-3">Welcome, <span th:text="${user}" class="fw-bold"></span></span>
+                    <th:block sec:authorize="hasRole('USER')">
+                        <a th:href="@{/bookings}" class="btn btn-light btn-sm me-2">
+                            <i class="fas fa-ticket-alt me-1"></i> My Bookings
+                        </a>
+                    </th:block>
+                    <a th:href="@{/logout}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </div>
+                <div th:if="${user == null}">
+                    <a th:href="@{/login}" class="btn btn-light btn-sm">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Search Header -->
+        <div class="search-header text-center">
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2 class="mb-2">Search Results</h2>
+            <p class="mb-0" th:if="${events.size() > 0}">Found <span th:text="${events.size()}"></span> events matching your criteria</p>
+            <p class="mb-0" th:if="${events.size() == 0}">No events found matching your criteria</p>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="row g-4" th:if="${events.size() > 0}">
+            <div th:each="event : ${events}" class="col-md-6 col-lg-4">
+                <div class="card event-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-0" th:text="${event.getName()}"></h5>
+                            <span class="rating-badge">
+                                <i class="fas fa-star me-1"></i>
+                                <span th:text="${event.getPopularityScore()}"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-3" th:text="${event.getDescription()}"></p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                <span th:text="${event.getLocation().getName()}" class="text-muted"></span>
+                            </div>
+                            <div>
+                                <i class="fas fa-ticket-alt text-success me-1"></i>
+                                <span th:text="${event.getNumTickets()}" class="text-muted"></span> tickets
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <th:block sec:authorize="hasRole('ADMIN')">
+                                    <form th:action="@{'/events/delete/{id}' (id=${event.getId()})}" th:method="DELETE" class="me-2">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash me-1"></i> Delete
+                                        </button>
+                                    </form>
+                                    <a th:href="@{'/events/edit-form/{id}' (id=${event.getId()})}" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </a>
+                                </th:block>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <form th:action="@{'/events/like/{id}' (id=${event.getId()})}" th:method="POST" class="me-2">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" th:disabled="${event.isLiked()}">
+                                        <i class="fas fa-thumbs-up me-1"></i> Like
+                                    </button>
+                                </form>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="event" 
+                                           th:value="${event.getName()}" onclick="setSelectedEvent()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="card" th:if="${events.size() == 0}">
+            <div class="card-body no-results">
+                <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                <h3>No Events Found</h3>
+                <p class="text-muted">Try adjusting your search criteria</p>
+            </div>
+        </div>
+
+        <!-- Booking Form -->
+        <th:block sec:authorize="!hasRole('ADMIN')" th:if="${events.size() > 0}">
+            <div class="card booking-form">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-ticket-alt me-2"></i>Book Selected Event
+                    </h5>
+                    <form th:method="POST" th:action="@{/eventBooking}" class="row g-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-ticket-alt text-muted"></i>
+                                </span>
+                                <input type="number" name="numTickets" class="form-control" 
+                                       placeholder="Number of tickets" min="1" max="1000" required>
+                            </div>
+                        </div>
+                        <input type="hidden" id="selectedEventName" name="eventName" required>
+                        <div class="col-md-6 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-1"></i> Book Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </th:block>
+
+        <div class="text-center mt-4">
+            <a href="/events" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to All Events
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function setSelectedEvent() {
+            const values = document.getElementsByName("event");
+            let selectedEvent = "";
+            for (let i = 0; i < values.length; i++) {
+                if (values[i].checked) {
+                    selectedEvent = values[i].value;
+                    break;
+                }
+            }
+            document.getElementById("selectedEventName").value = selectedEvent;
+        }
+    </script>
+</body>
+</html>

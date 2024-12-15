@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+
+    container_name: "wp_lab"
+
+    environment:
+      POSTGRES_DB: events
+      POSTGRES_USER: wp
+      POSTGRES_PASSWORD: wp123
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+#docker compose up -d

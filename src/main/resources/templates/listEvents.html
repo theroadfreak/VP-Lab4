@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Event Booking - Welcome</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .search-card {
+            background: white;
+            margin-bottom: 2rem;
+        }
+        .event-card {
+            height: 100%;
+        }
+        .event-card .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 1.5rem 1.5rem 1rem;
+        }
+        .event-card .card-body {
+            padding: 1.5rem;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        .rating-badge {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e0e0;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-calendar-alt me-2"></i>Event Booking
+            </a>
+            <div class="d-flex align-items-center">
+                <div th:if="${user != null}">
+                    <span class="text-white me-3">Welcome, <span th:text="${user}" class="fw-bold"></span></span>
+                    <th:block sec:authorize="hasRole('USER')">
+                        <a th:href="@{/bookings}" class="btn btn-light btn-sm me-2">
+                            <i class="fas fa-ticket-alt me-1"></i> My Bookings
+                        </a>
+                    </th:block>
+                    <a th:href="@{/logout}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </div>
+                <div th:if="${user == null}">
+                    <a th:href="@{/login}" class="btn btn-light btn-sm">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Search Section -->
+        <div class="card search-card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-4">
+                    <i class="fas fa-search me-2"></i>Search Events
+                </h5>
+                <form th:method="POST" th:action="@{/events/search}" class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-font text-muted"></i>
+                            </span>
+                            <input type="text" name="queryParam" class="form-control" placeholder="Event name">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-star text-muted"></i>
+                            </span>
+                            <input type="text" name="ratingParam" class="form-control" placeholder="Minimum rating">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-tag text-muted"></i>
+                            </span>
+                            <select name="categoryParam" class="form-select">
+                                <option value="" selected disabled>Select category</option>
+                                <option th:text="${categories.get(0)}"></option>
+                                <option th:text="${categories.get(1)}"></option>
+                                <option th:text="${categories.get(2)}"></option>
+                                <option th:text="${categories.get(3)}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Search Events
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div class="row g-4">
+            <div th:each="event : ${events}" class="col-md-6 col-lg-4">
+                <div class="card event-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-0" th:text="${event.getName()}"></h5>
+                            <span class="rating-badge">
+                                <i class="fas fa-star me-1"></i>
+                                <span th:text="${event.getPopularityScore()}"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-3" th:text="${event.getDescription()}"></p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                <span th:text="${event.getLocation().getName()}" class="text-muted"></span>
+                            </div>
+                            <div>
+                                <i class="fas fa-ticket-alt text-success me-1"></i>
+                                <span th:text="${event.getNumTickets()}" class="text-muted"></span> tickets
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <th:block sec:authorize="hasRole('ADMIN')">
+                                    <form th:action="@{'/events/delete/{id}' (id=${event.getId()})}" th:method="DELETE" class="me-2">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash me-1"></i> Delete
+                                        </button>
+                                    </form>
+                                    <a th:href="@{'/events/edit-form/{id}' (id=${event.getId()})}" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </a>
+                                </th:block>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <form th:action="@{'/events/like/{id}' (id=${event.getId()})}" th:method="POST" class="me-2">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" th:disabled="${event.isLiked()}">
+                                        <i class="fas fa-thumbs-up me-1"></i> Like
+                                    </button>
+                                </form>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="event" 
+                                           th:value="${event.getName()}" onclick="setSelectedEvent()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <div class="text-end my-4">
+                <a href="/events/add-form" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add New Event
+                </a>
+            </div>
+        </th:block>
+
+        <!-- Booking Form -->
+        <th:block sec:authorize="!hasRole('ADMIN')">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-ticket-alt me-2"></i>Book Your Tickets
+                    </h5>
+                    <form th:method="POST" th:action="@{/eventBooking}" class="row g-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-ticket-alt text-muted"></i>
+                                </span>
+                                <input type="number" name="numTickets" class="form-control" 
+                                       placeholder="Number of tickets" min="1" max="1000" required>
+                            </div>
+                        </div>
+                        <input type="hidden" id="selectedEventName" name="eventName" required>
+                        <div class="col-md-6 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-1"></i> Book Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </th:block>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function setSelectedEvent() {
+            const values = document.getElementsByName("event");
+            let tmp = "";
+            for (let i = 0; i < values.length; i++) {
+                if (values[i].checked) {
+                    tmp = values[i].value;
+                    break;
+                }
+            }
+            document.getElementById("selectedEventName").value = tmp;
+        }
+    </script>
+</body>
+</html>
